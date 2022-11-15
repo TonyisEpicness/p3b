@@ -6,11 +6,12 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
-
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
 } ptable;
+
+
 
 static struct proc *initproc;
 
@@ -19,6 +20,18 @@ extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
+
+int clone(void(*fcn)(void *, void *), void *arg1, void *arg2, void *stack) {
+  return 0;
+}
+
+int join(void **stack) {
+  return 0;
+}
+
+int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2) {
+  return 0;
+}
 
 void
 pinit(void)

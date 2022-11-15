@@ -3,6 +3,26 @@
 #include "fcntl.h"
 #include "user.h"
 #include "x86.h"
+#include "lock_t.h"
+
+int TestAndSet(int *old_ptr, int new_ptr) {
+  int old = *old_ptr;
+  *old_ptr = new_ptr;
+  return old;
+}
+
+void lock_acquire(lock_t *lock){
+  while(TestAndSet(lock->flag, 1) == 1)
+    ;
+}
+
+void lock_release(lock_t *lock) {
+  lock->flag = 0;
+}
+
+void lock_init(lock_t *lock) {
+  lock->flag = 0;
+}
 
 char*
 strcpy(char *s, const char *t)

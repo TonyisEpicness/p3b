@@ -79,6 +79,20 @@ sys_read(void)
 }
 
 int
+sys_clone(void)
+{
+  
+  return clone(0, 0, 0, 0);
+}
+
+int
+sys_join(void)
+{
+
+  return join(0);
+}
+
+int
 sys_write(void)
 {
   struct file *f;
