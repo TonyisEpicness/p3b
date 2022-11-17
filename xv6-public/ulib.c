@@ -3,16 +3,15 @@
 #include "fcntl.h"
 #include "user.h"
 #include "x86.h"
-#include "lock_t.h"
 
-int TestAndSet(int *old_ptr, int new_ptr) {
+int test_and_set(int *old_ptr, int new_ptr) {
   int old = *old_ptr;
   *old_ptr = new_ptr;
   return old;
 }
 
 void lock_acquire(lock_t *lock){
-  while(TestAndSet(lock->flag, 1) == 1)
+  while(test_and_set(&lock->flag, 1) == 1)
     ;
 }
 

@@ -22,7 +22,7 @@ extern void trapret(void);
 static void wakeup1(void *chan);
 
 int clone(void(*fcn)(void *, void *), void *arg1, void *arg2, void *stack) {
-  int i, pid;
+  /*int i, pid;
   struct proc *np;
 
   // Allocate process.
@@ -38,7 +38,7 @@ int clone(void(*fcn)(void *, void *), void *arg1, void *arg2, void *stack) {
   }
   np->sz = proc->sz;
   np->parent = proc;
-  *np->tf = *proc->tf;
+  *np->tf = *proc->tf;*/
   return 0;
 }
 
