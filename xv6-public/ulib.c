@@ -10,6 +10,14 @@ int test_and_set(int *old_ptr, int new_ptr) {
   return old;
 }
 
+int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2) {
+  return 0;
+}
+
+int thread_join() {
+  return 0;
+}
+
 void lock_acquire(lock_t *lock){
   while(test_and_set(&lock->flag, 1) == 1)
     ;

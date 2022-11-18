@@ -46,10 +46,6 @@ int join(void **stack) {
   return 0;
 }
 
-int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2) {
-  return 0;
-}
-
 void
 pinit(void)
 {
