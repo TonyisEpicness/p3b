@@ -11,8 +11,6 @@ struct {
   struct proc proc[NPROC];
 } ptable;
 
-
-
 static struct proc *initproc;
 
 int nextpid = 1;
@@ -20,52 +18,6 @@ extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
-
-int clone(void(*fcn)(void *, void *), void *arg1, void *arg2, void *stack) {
-  // **STARTER CODE FROM FORK** //
-  int i, pid;
-  struct proc *np;
-
-  // Allocate process. This handles kernel stack and state.
-  if((np = allocproc()) == 0){
-    return -1;
-  }
-
-  // Copy process state from p. -- Will Not Use
-  /* 
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){ 
-    //only if copyuvm fails - free kernel stack and change state
-    kfree(np->kstack); 
-    np->kstack = 0;
-    np->state = UNUSED;
-    return -1;
-  }
-   */
-  
-  //new pagedir is same as parent's pagedir
-  np->pgdir = proc->pgdir;
-
-  // other things that were included in fork()
-  np->sz = proc->sz; 
-  np->parent = proc;
-  *np->tf = *proc->tf;
-
-  // TODO: init user stack (space allocated w malloc in thread_create)
-  // and registers (np->tf->eip, np->tf->esp)
-
-  // tip: use copyout in vm.c
-
-
-
-  
-  // do i return pid or the fake addr?
-  return pid;
-  // return 0xffffffff; // shouldn't reach - proper thread will just exit()
-}
-
-int join(void **stack) {
-  return 0;
-}
 
 void
 pinit(void)
@@ -220,6 +172,57 @@ growproc(int n)
   switchuvm(curproc);
   return 0;
 }
+
+int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
+  // **STARTER CODE FROM FORK** //
+  int i, pid;
+  struct proc *np;
+  struct proc *curproc = myproc();
+  // Allocate process. This handles kernel stack and state.
+  if((np = allocproc()) == 0){
+    return -1;
+  }
+
+  // Copy process state from p. -- Will Not Use
+  /* 
+  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){ 
+    //only if copyuvm fails - free kernel stack and change state
+    kfree(np->kstack); 
+    np->kstack = 0;
+    np->state = UNUSED;
+    return -1;
+  }
+   */
+  
+  
+  np->pgdir = curproc->pgdir;
+  
+  np->sz = curproc->sz; 
+  np->parent = curproc;
+  *np->tf = *curproc->tf;
+  
+  np->tf->eip = (uint)fcn;
+  
+  np->tf->esp = stack;
+
+  // tip: use copyout in vm.c
+
+  for(i = 0; i < NOFILE; i++)
+    if(curproc->ofile[i])
+      np->ofile[i] = filedup(curproc->ofile[i]);
+  np->cwd = idup(curproc->cwd);
+
+
+  
+  // do i return pid or the fake addr?
+  return pid;
+  // return 0xffffffff; // shouldn't reach - proper thread will just exit()
+}
+
+int join(void **stack) {
+  return 0;
+}
+
 
 // Create a new process copying p as the parent.
 // Sets up stack to return as if from system call.

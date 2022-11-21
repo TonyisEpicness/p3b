@@ -14,7 +14,7 @@ int test_and_set(int *old_ptr, int new_ptr) {
 // a wrapper func for clone
 int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2) {
   // allocate user stack that is passed into clone using malloc -- pass its addr into clone
-  void *n_stack = malloc(PGSIZE);
+  void *n_stack = 0;
   if(n_stack == 0){
     return -1;
   }
@@ -26,7 +26,7 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
   // I can't remember if there was something else to do here but I'm sure I'll find out
 
 
-  return 0;
+  return new_pid;
 }
 
 int thread_join() {
