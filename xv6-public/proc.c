@@ -212,8 +212,15 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
   *np->tf = *curproc->tf;
   
   np->tf->eip = (uint)fcn;
+<<<<<<< HEAD
   np->tf->esp = (uint)stack+PGSIZE-12;
   np->tf->ebp = (uint)stack+PGSIZE-12;
+=======
+  
+  np->tf->esp = (uint)stack;
+
+  // tip: use copyout in vm.c
+>>>>>>> d669a6c (ulib and makefile)
 
   for(i = 0; i < NOFILE; i++)
     if(curproc->ofile[i])
