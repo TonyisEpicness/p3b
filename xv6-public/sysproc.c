@@ -7,6 +7,20 @@
 #include "mmu.h"
 #include "proc.h"
 
+//TODO here or sysfile.c?
+int
+sys_clone(void)
+{
+  return 0;
+}
+
+//TODO here or sysfile.c?
+int
+sys_join(void)
+{
+  return 0;
+}
+
 int
 sys_fork(void)
 {
@@ -42,6 +56,9 @@ sys_getpid(void)
   return myproc()->pid;
 }
 
+// sbrk may be called when addr space grown by a thread - trace 
+// and find out where we need to add a lock and update other 
+// relevant things
 int
 sys_sbrk(void)
 {

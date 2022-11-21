@@ -3,6 +3,7 @@
 #include "fcntl.h"
 #include "user.h"
 #include "x86.h"
+#include "mmu.h"
 
 int test_and_set(int *old_ptr, int new_ptr) {
   int old = *old_ptr;
@@ -10,7 +11,21 @@ int test_and_set(int *old_ptr, int new_ptr) {
   return old;
 }
 
+// a wrapper func for clone
 int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2) {
+  // allocate user stack that is passed into clone using malloc -- pass its addr into clone
+  void *n_stack = malloc(PGSIZE);
+  if(n_stack == 0){
+    return -1;
+  }
+  int new_pid = clone(start_routine, arg1, arg2, n_stack); // TODO: is this the right way to call it?
+
+  // TODO: push args onto stack (grows negatively) -- do arg2 first then arg1 at the top of the stack
+
+
+  // I can't remember if there was something else to do here but I'm sure I'll find out
+
+
   return 0;
 }
 
