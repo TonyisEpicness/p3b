@@ -4,6 +4,13 @@
 #include "user.h"
 #include "x86.h"
 #include "mmu.h"
+struct thread_ref{
+  void* maddr;
+  void* pg1addr;
+  int flag = 0;
+}
+
+struct thread_ref threads[64];
 
 int test_and_set(int *old_ptr, int new_ptr) {
   int old = *old_ptr;
@@ -20,6 +27,14 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
   }
   int new_pid = clone(start_routine, arg1, arg2, n_stack); // TODO: is this the right way to call it?
 
+  for(int i=0; i<64; i++){
+    if(threads[i]->flag==0){
+      threads[i]->maddr = n_stack;
+      threads[i]->pg1addr = n_stack;
+      threads[i]->pg1addr = n_stack;
+      break;
+    }
+  }
   // TODO: push args onto stack (grows negatively) -- do arg2 first then arg1 at the top of the stack
 
 
@@ -32,7 +47,7 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
 int thread_join() {
   void *stk_addr;
   int pid = join(&stk_addr);
-  
+  free(stk_addr);
   return pid;
 }
 
