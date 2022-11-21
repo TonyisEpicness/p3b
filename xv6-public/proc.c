@@ -174,49 +174,53 @@ growproc(int n)
 }
 
 int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
-  // **STARTER CODE FROM FORK** //
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
+
+  //chec pg alignment (4096) 
+  if(((uint)stack % PGSIZE) != 0){
+    return -1;
+  }
+  
+  //check bds
+  if((curproc->sz - (uint)stack) < PGSIZE){
+    return -1;
+  }
   // Allocate process. This handles kernel stack and state.
   if((np = allocproc()) == 0){
     return -1;
   }
-
-  // Copy process state from p. -- Will Not Use
-  /* 
-  if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){ 
-    //only if copyuvm fails - free kernel stack and change state
-    kfree(np->kstack); 
-    np->kstack = 0;
-    np->state = UNUSED;
-    return -1;
-  }
-   */
   
-  
+  // np pgdir same as parent
   np->pgdir = curproc->pgdir;
-  
+
+  // set up args and return addr at top of stack, 
+  int tmp_u_stack[3];
+  uint stack_ptr = (uint)stack + PGSIZE;
+  tmp_u_stack[0] = (uint)arg2;
+  tmp_u_stack[1] = (uint)arg1;
+  tmp_u_stack[2] = 0xffffffff;
+  stack_ptr -= 12;
+  if (copyout(np->pgdir, stack_ptr, tmp_u_stack, 12) < 0){
+    return -1; //error in copyout
+  }
+
+  // set other things - like fork
   np->sz = curproc->sz; 
   np->parent = curproc;
   *np->tf = *curproc->tf;
   
   np->tf->eip = (uint)fcn;
-  
-  np->tf->esp = stack;
-
-  // tip: use copyout in vm.c
+  np->tf->esp = (uint)stack+PGSIZE-12;
+  np->tf->ebp = (uint)stack+PGSIZE-12;
 
   for(i = 0; i < NOFILE; i++)
     if(curproc->ofile[i])
       np->ofile[i] = filedup(curproc->ofile[i]);
   np->cwd = idup(curproc->cwd);
 
-
-  
-  // do i return pid or the fake addr?
   return pid;
-  // return 0xffffffff; // shouldn't reach - proper thread will just exit()
 }
 
 int join(void **stack) {
