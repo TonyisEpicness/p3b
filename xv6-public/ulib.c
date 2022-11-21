@@ -7,10 +7,10 @@
 struct thread_ref{
   void* maddr;
   void* pg1addr;
-  int flag = 0;
-}
+  int flag;
+};
 
-struct thread_ref threads[64];
+struct thread_ref *threads[64];
 
 int test_and_set(int *old_ptr, int new_ptr) {
   int old = *old_ptr;
@@ -25,29 +25,28 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
   if(n_stack == 0){
     return -1;
   }
-  int new_pid = clone(start_routine, arg1, arg2, n_stack); // TODO: is this the right way to call it?
+  int new_pid = clone(start_routine, arg1, arg2, n_stack);
 
   for(int i=0; i<64; i++){
     if(threads[i]->flag==0){
       threads[i]->maddr = n_stack;
       threads[i]->pg1addr = n_stack;
-      threads[i]->pg1addr = n_stack;
       break;
     }
   }
-  // TODO: push args onto stack (grows negatively) -- do arg2 first then arg1 at the top of the stack
-
-
-  // I can't remember if there was something else to do here but I'm sure I'll find out
-
 
   return new_pid;
 }
 
+//TODO: fix
 int thread_join() {
   void *stk_addr;
   int pid = join(&stk_addr);
-  free(stk_addr);
+  for(int i=0; i<64; i++){
+    if((threads[i]->flag==1) && (stk_addr == threads[i]->pg1addr)){
+      free(stk_addr);
+    }
+  }
   return pid;
 }
 
