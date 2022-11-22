@@ -174,7 +174,7 @@ growproc(int n)
 }
 
 int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
-  int i, pid;
+  int i, ret_pid;
   struct proc *np;
   struct proc *curproc = myproc();
 
@@ -182,11 +182,11 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
   if(((uint)stack % PGSIZE) != 0){
     return -1;
   }
-  
   //check bds
   if((curproc->sz - (uint)stack) < PGSIZE){
     return -1;
   }
+  
   // Allocate process. This handles kernel stack and state.
   if((np = allocproc()) == 0){
     return -1;
@@ -206,11 +206,12 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
     return -1; //error in copyout
   }
 
-  // set other things - like fork
+  // set other things
   np->sz = curproc->sz; 
   np->parent = curproc;
   *np->tf = *curproc->tf;
   np->stk = stack;
+  
   np->tf->eip = (uint)fcn;
   np->tf->esp = (uint)stack+PGSIZE-12;
   np->tf->ebp = (uint)stack+PGSIZE-12;
@@ -221,7 +222,11 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
       np->ofile[i] = filedup(curproc->ofile[i]);
   np->cwd = idup(curproc->cwd);
 
-  return pid;
+  ret_pid = np->pid;
+  np->state = RUNNABLE;
+  safestrcpy(np->name, np->parent->name, sizeof(np->parent->name));
+
+  return ret_pid;
 }
 
 int join(void **stack) {
