@@ -1,2 +1,9 @@
 .vscode/settings.json
 .vscode/c_cpp_properties.json
+xv6-public/bootblock
+xv6-public/entryother
+xv6-public/initcode
+xv6-public/kernel
+xv6-public/mkfs
+xv6-public/vectors.S
+xv6-public/initcode.out
