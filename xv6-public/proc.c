@@ -152,6 +152,7 @@ userinit(void)
   release(&ptable.lock);
 }
 
+// TODO: need to change w
 // Grow current process's memory by n bytes.
 // Return 0 on success, -1 on failure.
 int
@@ -198,9 +199,9 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
   // set up args and return addr at top of stack, 
   int tmp_u_stack[3];
   uint stack_ptr = (uint)stack + PGSIZE;
-  tmp_u_stack[0] = (uint)arg2;
+  tmp_u_stack[0] = 0xffffffff;
   tmp_u_stack[1] = (uint)arg1;
-  tmp_u_stack[2] = 0xffffffff;
+  tmp_u_stack[2] = (uint)arg2;
   stack_ptr -= 12;
   if (copyout(np->pgdir, stack_ptr, tmp_u_stack, 12) < 0){
     return -1; //error in copyout
