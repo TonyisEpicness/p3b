@@ -25,23 +25,12 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
   if(n_stack == 0){
     return -1;
   }
-<<<<<<< HEAD
-  int new_pid = clone(start_routine, arg1, arg2, n_stack);
-
+  
   for(int i=0; i<64; i++){
     if(threads[i]->flag==0){
       threads[i]->maddr = n_stack;
       threads[i]->pg1addr = n_stack;
-      break;
-    }
-  }
-=======
-  
-  for(int i=0; i<64; i++){
-    if(threads[i].flag==0){
-      threads[i].maddr = n_stack;
-      threads[i].pg1addr = n_stack;
-      threads[i].flag = 1;
+      threads[i]->flag = 1;
       break;
     }
   }
@@ -53,7 +42,7 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
 
   // I can't remember if there was something else to do here but I'm sure I'll find out
 
->>>>>>> c59b0f9 (fixed thread_join and join)
+
 
   return new_pid;
 }
