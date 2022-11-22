@@ -12,6 +12,10 @@ struct thread_ref{
 
 struct thread_ref *threads[64];
 
+// TODO: need to initialize values of flag to 0: 
+// can't do it in struct definition
+// and can't do a for loop - causes error
+
 int test_and_set(int *old_ptr, int new_ptr) {
   int old = *old_ptr;
   *old_ptr = new_ptr;
