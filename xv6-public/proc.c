@@ -210,7 +210,7 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
   np->sz = curproc->sz; 
   np->parent = curproc;
   *np->tf = *curproc->tf;
-  
+  np->stk = stack;
   np->tf->eip = (uint)fcn;
   np->tf->esp = (uint)stack+PGSIZE-12;
   np->tf->ebp = (uint)stack+PGSIZE-12;
@@ -240,12 +240,12 @@ int join(void **stack) {
         return -1;
       if(p->state == ZOMBIE){
 
-        *stack = (void*)p->tf->esp+12-PGSIZE;
+        *stack = p->stk;
 
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
-        freevm(p->pgdir);
+        //freevm(p->pgdir);
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
