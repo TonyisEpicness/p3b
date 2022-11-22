@@ -4,6 +4,8 @@
 #include "user.h"
 #include "x86.h"
 #include "mmu.h"
+#include <stddef.h>
+
 struct thread_ref{
   void* maddr;
   void* pg1addr;
@@ -47,9 +49,14 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
 int thread_join() {
   void *stk_addr;
   int pid = join(&stk_addr);
+
   for(int i=0; i<64; i++){
     if((threads[i]->flag==1) && (stk_addr == threads[i]->pg1addr)){
       free(stk_addr);
+      threads[i]->maddr = NULL;
+      threads[i]->pg1addr = NULL;
+      threads[i]->flag = 0;
+      break;
     }
   }
   return pid;
