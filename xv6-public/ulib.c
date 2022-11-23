@@ -21,6 +21,7 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
   if(n_stack == 0){
     return -1;
   }
+  //not used anymore (deprecated)
   /*for(int i=0; i<64; i++){
     if(threads[i]->flag==0){
       threads[i]->maddr = n_stack;
