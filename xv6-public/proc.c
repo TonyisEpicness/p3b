@@ -152,7 +152,6 @@ userinit(void)
   release(&ptable.lock);
 }
 
-// TODO: need to change w
 // Grow current process's memory by n bytes.
 // Return 0 on success, -1 on failure.
 int
@@ -170,6 +169,14 @@ growproc(int n)
       return -1;
   }
   curproc->sz = sz;
+
+  // growing threads
+  struct proc *p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if ((curproc != p) && (p->pgdir == curproc->pgdir))
+      p->sz = sz;
+  }
+
   switchuvm(curproc);
   return 0;
 }
