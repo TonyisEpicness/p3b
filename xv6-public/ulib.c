@@ -14,16 +14,6 @@ struct thread_ref{
 
 struct thread_ref *threads[64];
 
-// TODO: need to initialize values of flag to 0: 
-// can't do it in struct definition
-// and can't do a for loop - causes error
-
-int test_and_set(int *old_ptr, int new_ptr) {
-  int old = *old_ptr;
-  *old_ptr = new_ptr;
-  return old;
-}
-
 // a wrapper func for clone
 int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2) {
   // allocate user stack that is passed into clone using malloc -- pass its addr into clone
@@ -31,16 +21,18 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
   if(n_stack == 0){
     return -1;
   }
-  
-  for(int i=0; i<64; i++){
+  /*for(int i=0; i<64; i++){
     if(threads[i]->flag==0){
       threads[i]->maddr = n_stack;
       threads[i]->pg1addr = n_stack;
       threads[i]->flag = 1;
       break;
     }
-  }
+  }*/
   
+  if((uint)n_stack % PGSIZE) {
+    n_stack = n_stack + (PGSIZE - (uint)n_stack %PGSIZE);
+  }
   int new_pid = clone(start_routine, arg1, arg2, n_stack); 
 
   return new_pid;
@@ -48,26 +40,38 @@ int thread_create(void (*start_routine)(void *, void *), void *arg1, void *arg2)
 
 int thread_join() {
   void *stk_addr;
-  int pid = join(&stk_addr);
-
-  for(int i=0; i<64; i++){
-    if((threads[i]->flag==1) && (stk_addr == threads[i]->pg1addr)){
+  int tid = join(&stk_addr);
+  if (tid != -1)
+    free(stk_addr);
+  return tid;
+  /*for(int i=0; i<64; i++){
+    if((threads[i]->flag==1)){
       free(stk_addr);
       threads[i]->maddr = NULL;
       threads[i]->pg1addr = NULL;
       threads[i]->flag = 0;
       break;
     }
-  }
-  return pid;
+  }*/
+  
+}
+
+//deprecated
+inline int test_and_set(int *old_ptr, int new_ptr) {
+  int old = *old_ptr;
+  *old_ptr = new_ptr;
+  return old;
 }
 
 void lock_acquire(lock_t *lock){
-  while(test_and_set(&lock->flag, 1) == 1)
+  while(xchg(&lock->flag, 1) == 1)
     ;
+  __sync_synchronize();
 }
 
 void lock_release(lock_t *lock) {
+  __sync_synchronize();
+  //asm volatile("movl $0, %0" : "+m" (lock->flag) : );
   lock->flag = 0;
 }
 

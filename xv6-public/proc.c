@@ -204,11 +204,9 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
   np->pgdir = curproc->pgdir;
 
   // set up args and return addr at top of stack
-<<<<<<< HEAD
   *((uint*)(stack + PGSIZE - 4)) = (uint)arg2;
   *((uint*)(stack + PGSIZE - 8)) = (uint)arg1;
   *((uint*)(stack + PGSIZE - 12)) = 0xffffffff;
-=======
 
   // int tmp_u_stack[3];
   // uint stack_ptr = (uint)stack + PGSIZE;
@@ -219,7 +217,6 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
   // if (copyout(np->pgdir, stack_ptr, tmp_u_stack, 12) < 0){
   //   return -1; //error in copyout
   // }
->>>>>>> 8788dc3 (new commit)
 
   // set other things
   np->sz = curproc->sz; 
@@ -402,7 +399,7 @@ wait(void)
     // Scan through table looking for exited children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != curproc)
+      if(p->parent != curproc|| p->pgdir == curproc->pgdir)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){

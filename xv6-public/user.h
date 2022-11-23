@@ -1,7 +1,7 @@
 struct stat;
 struct rtcdate;
 typedef struct lock_t {
-  int flag;
+  uint flag;
 }lock_t;
 
 // system calls
