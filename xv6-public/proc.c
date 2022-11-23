@@ -204,19 +204,36 @@ int clone(void(*fcn)(void*, void*), void *arg1, void *arg2, void *stack) {
   np->pgdir = curproc->pgdir;
 
   // set up args and return addr at top of stack
+<<<<<<< HEAD
   *((uint*)(stack + PGSIZE - 4)) = (uint)arg2;
   *((uint*)(stack + PGSIZE - 8)) = (uint)arg1;
   *((uint*)(stack + PGSIZE - 12)) = 0xffffffff;
+=======
+
+  // int tmp_u_stack[3];
+  // uint stack_ptr = (uint)stack + PGSIZE;
+  // tmp_u_stack[0] = (uint)arg2;
+  // tmp_u_stack[1] = (uint)arg1;
+  // tmp_u_stack[2] = 0xffffffff;
+  // stack_ptr -= 12;
+  // if (copyout(np->pgdir, stack_ptr, tmp_u_stack, 12) < 0){
+  //   return -1; //error in copyout
+  // }
+>>>>>>> 8788dc3 (new commit)
 
   // set other things
   np->sz = curproc->sz; 
   np->parent = curproc;
   *np->tf = *curproc->tf;
+  np->tf->eax = 0;
   np->stk = stack;
   
+  *((uint*)(stack + PGSIZE - 4)) = (uint)arg2;
+  *((uint*)(stack + PGSIZE - 8)) = (uint)arg1;
+  *((uint*)(stack + PGSIZE - 12)) = 0xffffffff;
   np->tf->eip = (uint)fcn;
   np->tf->esp = (uint)stack+PGSIZE-12;
-  np->tf->ebp = (uint)stack+PGSIZE-12;
+  //np->tf->ebp = (uint)stack+PGSIZE-12;
 
 
   for(i = 0; i < NOFILE; i++)
@@ -237,6 +254,11 @@ int join(void **stack) {
   int havekids, pid;
   struct proc *curproc = myproc();
   acquire(&ptable.lock);
+  
+  if((uint)stack+4 > (curproc->sz)) {
+    return -1;
+  }
+  
   for(;;){
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -248,11 +270,9 @@ int join(void **stack) {
       if(p->state == ZOMBIE){
 
         *stack = p->stk;
-
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
-        //freevm(p->pgdir);
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
